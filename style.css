@@ -1,8 +1,8 @@
 :root {
-  --bg-dark: #0f172a;
-  --card-dark: #1e293b;
-  --bg-light: #f1f5f9;
-  --card-light: #ffffff;
+  --dark-bg: #0f172a;
+  --dark-card: #1e293b;
+  --light-bg: #f1f5f9;
+  --light-card: #ffffff;
   --accent: #6366f1;
   --correct: #22c55e;
   --incorrect: #ef4444;
@@ -13,7 +13,7 @@
   padding: 0;
   box-sizing: border-box;
   font-family: "Inter", sans-serif;
-  transition: 0.3s ease;
+  transition: 0.25s ease;
 }
 
 body {
@@ -24,12 +24,12 @@ body {
 }
 
 body.dark {
-  background: var(--bg-dark);
+  background: var(--dark-bg);
   color: white;
 }
 
 body.light {
-  background: var(--bg-light);
+  background: var(--light-bg);
   color: #111;
 }
 
@@ -41,11 +41,11 @@ body.light {
 }
 
 body.dark .app {
-  background: var(--card-dark);
+  background: var(--dark-card);
 }
 
 body.light .app {
-  background: var(--card-light);
+  background: var(--light-card);
 }
 
 .top-bar {
@@ -85,7 +85,7 @@ select {
   text-align: center;
 }
 
-.stats span {
+.label {
   font-size: 14px;
   opacity: 0.7;
 }
@@ -96,7 +96,7 @@ select {
   margin-bottom: 20px;
   line-height: 1.8;
   font-size: 18px;
-  min-height: 120px;
+  min-height: 150px;
 }
 
 body.dark .text-display {
@@ -117,7 +117,7 @@ body.light .text-display {
 
 textarea {
   width: 100%;
-  height: 120px;
+  height: 130px;
   border-radius: 12px;
   padding: 15px;
   font-size: 16px;
