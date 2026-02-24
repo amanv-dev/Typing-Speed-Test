@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Typing Speed Test</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="app">
+    <h1>Typing Speed Test</h1>
+
+    <div class="stats">
+      <div>
+        <span class="label">Time</span>
+        <span id="time">60</span>s
+      </div>
+      <div>
+        <span class="label">WPM</span>
+        <span id="wpm">0</span>
+      </div>
+      <div>
+        <span class="label">Accuracy</span>
+        <span id="accuracy">100</span>%
+      </div>
+    </div>
+
+    <div class="text-display" id="textDisplay"></div>
+
+    <textarea id="input" placeholder="Start typing here..."></textarea>
+
+    <button id="restartBtn">Restart</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
