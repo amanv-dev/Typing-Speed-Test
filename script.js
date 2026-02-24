@@ -1,5 +1,5 @@
 const sampleText =
-  "Consistency is what transforms average into excellence. Stay disciplined, stay focused, and let your daily effort compound into success.";
+  "Success is not about luck. It is about discipline, effort, and consistency repeated daily until greatness becomes a habit.";
 
 const textDisplay = document.getElementById("textDisplay");
 const input = document.getElementById("input");
@@ -7,14 +7,16 @@ const timeEl = document.getElementById("time");
 const wpmEl = document.getElementById("wpm");
 const accuracyEl = document.getElementById("accuracy");
 const restartBtn = document.getElementById("restartBtn");
+const timeSelect = document.getElementById("timeSelect");
+const themeToggle = document.getElementById("themeToggle");
 
-let timeLeft = 60;
+let timeLeft = parseInt(timeSelect.value);
 let timer = null;
 let started = false;
 
 function loadText() {
   textDisplay.innerHTML = "";
-  sampleText.split("").forEach((char) => {
+  sampleText.split("").forEach(char => {
     const span = document.createElement("span");
     span.innerText = char;
     textDisplay.appendChild(span);
@@ -39,13 +41,12 @@ input.addEventListener("input", () => {
     startTimer();
   }
 
-  const typedText = input.value.split("");
+  const typed = input.value.split("");
   const spans = textDisplay.querySelectorAll("span");
-
   let correct = 0;
 
   spans.forEach((span, index) => {
-    const char = typedText[index];
+    const char = typed[index];
 
     if (char == null) {
       span.classList.remove("correct", "incorrect");
@@ -59,24 +60,37 @@ input.addEventListener("input", () => {
     }
   });
 
-  const minutes = (60 - timeLeft) / 60;
+  const minutes = (parseInt(timeSelect.value) - timeLeft) / 60;
   const wpm = Math.round((correct / 5) / minutes);
   wpmEl.innerText = isFinite(wpm) ? wpm : 0;
 
-  const accuracy = Math.round((correct / typedText.length) * 100);
-  accuracyEl.innerText = typedText.length ? accuracy : 100;
+  const accuracy = Math.round((correct / typed.length) * 100);
+  accuracyEl.innerText = typed.length ? accuracy + "%" : "100%";
 });
 
-restartBtn.addEventListener("click", () => {
+restartBtn.addEventListener("click", resetTest);
+
+timeSelect.addEventListener("change", resetTest);
+
+function resetTest() {
   clearInterval(timer);
-  timeLeft = 60;
+  timeLeft = parseInt(timeSelect.value);
+  timeEl.innerText = timeLeft;
   started = false;
   input.disabled = false;
   input.value = "";
-  timeEl.innerText = timeLeft;
   wpmEl.innerText = 0;
-  accuracyEl.innerText = 100;
+  accuracyEl.innerText = "100%";
   loadText();
+}
+
+themeToggle.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  document.body.classList.toggle("light");
+
+  themeToggle.textContent =
+    document.body.classList.contains("dark") ? "🌙" : "☀️";
 });
 
 loadText();
+timeEl.innerText = timeLeft;
