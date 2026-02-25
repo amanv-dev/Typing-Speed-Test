@@ -1,36 +1,57 @@
-:root {
-  --dark-bg: #0f172a;
-  --dark-card: #1e293b;
-  --light-bg: #f1f5f9;
-  --light-card: #ffffff;
-  --accent: #6366f1;
-  --correct: #22c55e;
-  --incorrect: #ef4444;
-}
-
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: "Inter", sans-serif;
-  transition: 0.25s ease;
+  transition: 0.3s ease;
 }
+
+/* THEME VARIABLES */
+
+body[data-theme="dark"] {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --text: #ffffff;
+  --accent: #6366f1;
+}
+
+body[data-theme="light"] {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #111827;
+  --accent: #4f46e5;
+}
+
+body[data-theme="amoled"] {
+  --bg: #000000;
+  --card: #0a0a0a;
+  --text: #ffffff;
+  --accent: #00ff99;
+}
+
+body[data-theme="ocean"] {
+  --bg: #0e2a47;
+  --card: #12395d;
+  --text: #e0f2fe;
+  --accent: #38bdf8;
+}
+
+body[data-theme="minimal"] {
+  --bg: #e5e7eb;
+  --card: #ffffff;
+  --text: #111;
+  --accent: #6b7280;
+}
+
+/* GENERAL LAYOUT */
 
 body {
   min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-body.dark {
-  background: var(--dark-bg);
-  color: white;
-}
-
-body.light {
-  background: var(--light-bg);
-  color: #111;
 }
 
 .app {
@@ -38,14 +59,7 @@ body.light {
   max-width: 95%;
   padding: 40px;
   border-radius: 20px;
-}
-
-body.dark .app {
-  background: var(--dark-card);
-}
-
-body.light .app {
-  background: var(--light-card);
+  background: var(--card);
 }
 
 .top-bar {
@@ -66,14 +80,6 @@ select, button {
   border: none;
   font-weight: 600;
   cursor: pointer;
-}
-
-select {
-  background: var(--accent);
-  color: white;
-}
-
-#themeToggle {
   background: var(--accent);
   color: white;
 }
@@ -85,7 +91,7 @@ select {
   text-align: center;
 }
 
-.label {
+.stats span {
   font-size: 14px;
   opacity: 0.7;
 }
@@ -97,22 +103,15 @@ select {
   line-height: 1.8;
   font-size: 18px;
   min-height: 150px;
-}
-
-body.dark .text-display {
-  background: #334155;
-}
-
-body.light .text-display {
-  background: #e2e8f0;
+  background: rgba(255,255,255,0.05);
 }
 
 .correct {
-  color: var(--correct);
+  color: #22c55e;
 }
 
 .incorrect {
-  color: var(--incorrect);
+  color: #ef4444;
 }
 
 textarea {

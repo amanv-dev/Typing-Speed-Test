@@ -5,15 +5,30 @@ const wpmEl = document.getElementById("wpm");
 const accuracyEl = document.getElementById("accuracy");
 const restartBtn = document.getElementById("restartBtn");
 const timeSelect = document.getElementById("timeSelect");
-const themeToggle = document.getElementById("themeToggle");
+const themeSelect = document.getElementById("themeSelect");
 
 let timeLeft = parseInt(timeSelect.value);
 let timer = null;
 let started = false;
-let currentText = "";
-let usedTexts = new Set();
 
-/* Sentence pool */
+/* THEME SYSTEM */
+
+function loadTheme() {
+  const savedTheme = localStorage.getItem("theme") || "dark";
+  document.body.setAttribute("data-theme", savedTheme);
+  themeSelect.value = savedTheme;
+}
+
+themeSelect.addEventListener("change", () => {
+  const selected = themeSelect.value;
+  document.body.setAttribute("data-theme", selected);
+  localStorage.setItem("theme", selected);
+});
+
+loadTheme();
+
+/* TEXT SYSTEM */
+
 const sentencePool = [
   "Discipline is choosing what you want most over what you want now.",
   "Small daily improvements lead to stunning long term results.",
@@ -29,59 +44,33 @@ const sentencePool = [
   "Habits define the direction of your life.",
   "Progress requires persistence.",
   "Excellence is never accidental.",
-  "Learning never exhausts the mind.",
-  "Dedication transforms dreams into reality.",
-  "Courage grows through challenge.",
-  "Preparation creates opportunity.",
-  "Vision gives purpose to effort.",
-  "Success favors the consistent."
+  "Learning never exhausts the mind."
 ];
 
-/* Generate paragraph based on minutes */
 function generateParagraph(seconds) {
-  let sentenceCount;
+  let count = seconds === 60 ? 4 : seconds === 180 ? 10 : 18;
+  let text = "";
 
-  if (seconds === 60) sentenceCount = 4;
-  if (seconds === 180) sentenceCount = 10;
-  if (seconds === 300) sentenceCount = 18;
-
-  let available = [...sentencePool];
-  let paragraph = "";
-
-  for (let i = 0; i < sentenceCount; i++) {
-    if (available.length === 0) {
-      available = [...sentencePool];
-    }
-
-    const randomIndex = Math.floor(Math.random() * available.length);
-    paragraph += available[randomIndex] + " ";
-    available.splice(randomIndex, 1);
+  for (let i = 0; i < count; i++) {
+    const randomIndex = Math.floor(Math.random() * sentencePool.length);
+    text += sentencePool[randomIndex] + " ";
   }
 
-  return paragraph.trim();
-}
-
-function getUniqueText() {
-  let newText;
-
-  do {
-    newText = generateParagraph(parseInt(timeSelect.value));
-  } while (usedTexts.has(newText));
-
-  usedTexts.add(newText);
-  return newText;
+  return text.trim();
 }
 
 function loadText() {
-  currentText = getUniqueText();
+  const paragraph = generateParagraph(parseInt(timeSelect.value));
   textDisplay.innerHTML = "";
 
-  currentText.split("").forEach(char => {
+  paragraph.split("").forEach(char => {
     const span = document.createElement("span");
     span.innerText = char;
     textDisplay.appendChild(span);
   });
 }
+
+/* TIMER + TYPING */
 
 function startTimer() {
   timer = setInterval(() => {
@@ -103,7 +92,6 @@ input.addEventListener("input", () => {
 
   const typed = input.value.split("");
   const spans = textDisplay.querySelectorAll("span");
-
   let correct = 0;
 
   spans.forEach((span, index) => {
@@ -129,6 +117,8 @@ input.addEventListener("input", () => {
   accuracyEl.innerText = typed.length ? accuracy + "%" : "100%";
 });
 
+/* RESET */
+
 function resetTest() {
   clearInterval(timer);
   timeLeft = parseInt(timeSelect.value);
@@ -143,14 +133,6 @@ function resetTest() {
 
 restartBtn.addEventListener("click", resetTest);
 timeSelect.addEventListener("change", resetTest);
-
-themeToggle.addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-  document.body.classList.toggle("light");
-
-  themeToggle.textContent =
-    document.body.classList.contains("dark") ? "🌙" : "☀️";
-});
 
 loadText();
 timeEl.innerText = timeLeft;
