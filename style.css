@@ -6,8 +6,6 @@
   transition: 0.3s ease;
 }
 
-/* THEMES */
-
 body[data-theme="dark"] {
   --bg: #0f172a;
   --card: #1e293b;
@@ -42,8 +40,6 @@ body[data-theme="minimal"] {
   --text: #111;
   --accent: #6b7280;
 }
-
-/* LAYOUT */
 
 body {
   min-height: 100vh;
@@ -87,21 +83,7 @@ select, button {
 .stats {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.advanced {
-  display: flex;
-  justify-content: space-between;
   margin-bottom: 20px;
-  padding: 15px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.05);
-}
-
-.hidden {
-  display: none;
 }
 
 .text-display {
@@ -112,15 +94,11 @@ select, button {
   font-size: 18px;
   min-height: 150px;
   background: rgba(255,255,255,0.05);
+  white-space: pre-wrap;
 }
 
-.correct {
-  color: #22c55e;
-}
-
-.incorrect {
-  color: #ef4444;
-}
+.correct { color: #22c55e; }
+.incorrect { color: #ef4444; }
 
 textarea {
   width: 100%;
