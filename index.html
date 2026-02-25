@@ -4,51 +4,57 @@
   <meta charset="UTF-8">
   <title>Typing Speed Test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body data-theme="dark">
 
-  <div class="app">
+<div class="app">
 
-    <div class="top-bar">
-      <h1>Typing Speed Test</h1>
+  <div class="top-bar">
+    <h1>Typing Speed Test</h1>
 
-      <div class="controls">
+    <div class="controls">
+      <select id="timeSelect">
+        <option value="60">1 Minute</option>
+        <option value="180">3 Minutes</option>
+        <option value="300">5 Minutes</option>
+      </select>
 
-        <select id="timeSelect">
-          <option value="60">1 Minute</option>
-          <option value="180">3 Minutes</option>
-          <option value="300">5 Minutes</option>
-        </select>
+      <select id="themeSelect">
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+        <option value="amoled">AMOLED</option>
+        <option value="ocean">Ocean</option>
+        <option value="minimal">Minimal</option>
+      </select>
 
-        <select id="themeSelect">
-          <option value="dark">Dark</option>
-          <option value="light">Light</option>
-          <option value="amoled">AMOLED</option>
-          <option value="ocean">Ocean</option>
-          <option value="minimal">Minimal</option>
-        </select>
-
-      </div>
+      <button id="advancedToggle">Advanced</button>
     </div>
-
-    <div class="stats">
-      <div><span>Time</span><h3 id="time">60</h3></div>
-      <div><span>WPM</span><h3 id="wpm">0</h3></div>
-      <div><span>Accuracy</span><h3 id="accuracy">100%</h3></div>
-    </div>
-
-    <div id="textDisplay" class="text-display"></div>
-
-    <textarea id="input" placeholder="Start typing here..."></textarea>
-
-    <button id="restartBtn" class="restart">Restart Test</button>
-
   </div>
+
+  <div class="stats">
+    <div><span>Time</span><h3 id="time">60</h3></div>
+    <div><span>Net WPM</span><h3 id="wpm">0</h3></div>
+    <div><span>Accuracy</span><h3 id="accuracy">100%</h3></div>
+  </div>
+
+  <!-- Advanced Metrics -->
+  <div id="advancedPanel" class="advanced hidden">
+    <div><span>Raw WPM</span><h4 id="rawWpm">0</h4></div>
+    <div><span>CPM</span><h4 id="cpm">0</h4></div>
+    <div><span>Errors</span><h4 id="errors">0</h4></div>
+    <div><span>Total Typed</span><h4 id="totalTyped">0</h4></div>
+  </div>
+
+  <div id="textDisplay" class="text-display"></div>
+
+  <textarea id="input" placeholder="Start typing here..."></textarea>
+
+  <button id="restartBtn" class="restart">Restart Test</button>
+
+</div>
 
 <script src="script.js"></script>
 </body>

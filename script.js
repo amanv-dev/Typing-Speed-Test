@@ -3,48 +3,45 @@ const input = document.getElementById("input");
 const timeEl = document.getElementById("time");
 const wpmEl = document.getElementById("wpm");
 const accuracyEl = document.getElementById("accuracy");
+
+const rawWpmEl = document.getElementById("rawWpm");
+const cpmEl = document.getElementById("cpm");
+const errorsEl = document.getElementById("errors");
+const totalTypedEl = document.getElementById("totalTyped");
+
 const restartBtn = document.getElementById("restartBtn");
 const timeSelect = document.getElementById("timeSelect");
 const themeSelect = document.getElementById("themeSelect");
+const advancedToggle = document.getElementById("advancedToggle");
+const advancedPanel = document.getElementById("advancedPanel");
 
 let timeLeft = parseInt(timeSelect.value);
 let timer = null;
 let started = false;
 
-/* THEME SYSTEM */
-
-function loadTheme() {
-  const savedTheme = localStorage.getItem("theme") || "dark";
-  document.body.setAttribute("data-theme", savedTheme);
-  themeSelect.value = savedTheme;
-}
+/* THEME */
 
 themeSelect.addEventListener("change", () => {
-  const selected = themeSelect.value;
-  document.body.setAttribute("data-theme", selected);
-  localStorage.setItem("theme", selected);
+  document.body.setAttribute("data-theme", themeSelect.value);
 });
 
-loadTheme();
+/* ADVANCED TOGGLE */
 
-/* TEXT SYSTEM */
+advancedToggle.addEventListener("click", () => {
+  advancedPanel.classList.toggle("hidden");
+});
+
+/* TEXT */
 
 const sentencePool = [
   "Discipline is choosing what you want most over what you want now.",
-  "Small daily improvements lead to stunning long term results.",
-  "Consistency beats intensity when building lasting success.",
-  "Focus is the bridge between goals and accomplishment.",
-  "Mastery is achieved through repetition and reflection.",
-  "Growth begins where comfort ends.",
-  "Momentum builds when action becomes a habit.",
-  "Confidence is earned through preparation.",
-  "Effort compounds just like interest.",
-  "Patience is power in slow motion.",
-  "Clarity fuels productivity.",
-  "Habits define the direction of your life.",
-  "Progress requires persistence.",
-  "Excellence is never accidental.",
-  "Learning never exhausts the mind."
+  "Consistency builds excellence through repetition.",
+  "Focus transforms effort into achievement.",
+  "Habits determine long term success.",
+  "Patience multiplies performance over time.",
+  "Preparation reduces uncertainty.",
+  "Progress requires daily commitment.",
+  "Confidence grows through challenge."
 ];
 
 function generateParagraph(seconds) {
@@ -70,7 +67,7 @@ function loadText() {
   });
 }
 
-/* TIMER + TYPING */
+/* TIMER */
 
 function startTimer() {
   timer = setInterval(() => {
@@ -84,6 +81,8 @@ function startTimer() {
   }, 1000);
 }
 
+/* TYPING */
+
 input.addEventListener("input", () => {
   if (!started) {
     started = true;
@@ -92,7 +91,9 @@ input.addEventListener("input", () => {
 
   const typed = input.value.split("");
   const spans = textDisplay.querySelectorAll("span");
+
   let correct = 0;
+  let errors = 0;
 
   spans.forEach((span, index) => {
     const char = typed[index];
@@ -106,12 +107,21 @@ input.addEventListener("input", () => {
     } else {
       span.classList.add("incorrect");
       span.classList.remove("correct");
+      errors++;
     }
   });
 
   const minutesElapsed = (parseInt(timeSelect.value) - timeLeft) / 60;
-  const wpm = Math.round((correct / 5) / minutesElapsed);
-  wpmEl.innerText = isFinite(wpm) ? wpm : 0;
+
+  const rawWPM = Math.round((typed.length / 5) / minutesElapsed);
+  const netWPM = Math.round(((correct - errors) / 5) / minutesElapsed);
+  const cpm = Math.round(typed.length / minutesElapsed);
+
+  wpmEl.innerText = isFinite(netWPM) ? netWPM : 0;
+  rawWpmEl.innerText = isFinite(rawWPM) ? rawWPM : 0;
+  cpmEl.innerText = isFinite(cpm) ? cpm : 0;
+  errorsEl.innerText = errors;
+  totalTypedEl.innerText = typed.length;
 
   const accuracy = Math.round((correct / typed.length) * 100);
   accuracyEl.innerText = typed.length ? accuracy + "%" : "100%";
@@ -128,6 +138,10 @@ function resetTest() {
   input.value = "";
   wpmEl.innerText = 0;
   accuracyEl.innerText = "100%";
+  rawWpmEl.innerText = 0;
+  cpmEl.innerText = 0;
+  errorsEl.innerText = 0;
+  totalTypedEl.innerText = 0;
   loadText();
 }
 
