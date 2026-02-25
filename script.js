@@ -7,6 +7,7 @@ const restartBtn = document.getElementById("restartBtn");
 const timeSelect = document.getElementById("timeSelect");
 const themeSelect = document.getElementById("themeSelect");
 const difficultySelect = document.getElementById("difficultySelect");
+const bestStatsEl = document.getElementById("bestStats");
 
 let timeLeft = parseInt(timeSelect.value);
 let timer = null;
@@ -17,63 +18,24 @@ themeSelect.addEventListener("change", () => {
   document.body.setAttribute("data-theme", themeSelect.value);
 });
 
-/* TEXT POOLS */
+/* TEXT DATA */
 
-const easyWords = [
-  "cat dog tree sun moon star book pen cup fish red blue green run jump play walk smile happy light dark water fire wind"
-];
-
-const mediumSentences = [
+const textPool = [
   "Consistency builds excellence through repetition.",
   "Focus transforms effort into achievement.",
-  "Habits determine long term success.",
-  "Patience multiplies performance over time."
-];
-
-const hardSentences = [
-  "Success isn't accidental; it's engineered through discipline.",
-  "Momentum—once built—requires constant calibration.",
-  "Growth demands sacrifice, resilience, and adaptability.",
-  "Precision matters: details define mastery."
-];
-
-const codeSnippets = [
-`function greet(name) {
-  return "Hello, " + name + "!";
-}`,
-
-`const add = (a, b) => {
-  return a + b;
-};`,
-
-`for (let i = 0; i < 10; i++) {
-  console.log(i);
-}`,
-
-`if (user.isLoggedIn) {
-  dashboard.render();
-}`
+  "Growth demands sacrifice and resilience.",
+  "Discipline defines long term success.",
+  "Preparation creates opportunity."
 ];
 
 function generateText() {
-  const seconds = parseInt(timeSelect.value);
-  const difficulty = difficultySelect.value;
+  let count = parseInt(timeSelect.value) === 60 ? 3 :
+              parseInt(timeSelect.value) === 180 ? 8 : 15;
 
-  let count = seconds === 60 ? 3 : seconds === 180 ? 8 : 15;
   let text = "";
-
   for (let i = 0; i < count; i++) {
-    if (difficulty === "easy") {
-      text += easyWords[0] + " ";
-    } else if (difficulty === "medium") {
-      text += mediumSentences[Math.floor(Math.random() * mediumSentences.length)] + " ";
-    } else if (difficulty === "hard") {
-      text += hardSentences[Math.floor(Math.random() * hardSentences.length)] + " ";
-    } else if (difficulty === "code") {
-      text += codeSnippets[Math.floor(Math.random() * codeSnippets.length)] + "\n\n";
-    }
+    text += textPool[Math.floor(Math.random() * textPool.length)] + " ";
   }
-
   return text.trim();
 }
 
@@ -88,6 +50,8 @@ function loadText() {
   });
 }
 
+/* TIMER */
+
 function startTimer() {
   timer = setInterval(() => {
     if (timeLeft > 0) {
@@ -96,9 +60,12 @@ function startTimer() {
     } else {
       clearInterval(timer);
       input.disabled = true;
+      updatePersonalBest();
     }
   }, 1000);
 }
+
+/* TYPING */
 
 input.addEventListener("input", () => {
   if (!started) {
@@ -110,7 +77,6 @@ input.addEventListener("input", () => {
   const spans = textDisplay.querySelectorAll("span");
 
   let correct = 0;
-
   spans.forEach((span, index) => {
     const char = typed[index];
 
@@ -134,6 +100,44 @@ input.addEventListener("input", () => {
   accuracyEl.innerText = typed.length ? accuracy + "%" : "100%";
 });
 
+/* PERSONAL BEST SYSTEM */
+
+function getKey() {
+  return `best_${timeSelect.value}_${difficultySelect.value}`;
+}
+
+function updatePersonalBest() {
+  const currentWPM = parseInt(wpmEl.innerText);
+  const currentAccuracy = parseInt(accuracyEl.innerText);
+
+  const key = getKey();
+  const existing = JSON.parse(localStorage.getItem(key));
+
+  if (!existing || currentWPM > existing.wpm) {
+    const record = {
+      wpm: currentWPM,
+      accuracy: currentAccuracy
+    };
+    localStorage.setItem(key, JSON.stringify(record));
+  }
+
+  loadPersonalBest();
+}
+
+function loadPersonalBest() {
+  const key = getKey();
+  const record = JSON.parse(localStorage.getItem(key));
+
+  if (record) {
+    bestStatsEl.innerText =
+      `Best WPM: ${record.wpm} | Accuracy: ${record.accuracy}%`;
+  } else {
+    bestStatsEl.innerText = "No record yet";
+  }
+}
+
+/* RESET */
+
 function resetTest() {
   clearInterval(timer);
   timeLeft = parseInt(timeSelect.value);
@@ -144,6 +148,7 @@ function resetTest() {
   wpmEl.innerText = 0;
   accuracyEl.innerText = "100%";
   loadText();
+  loadPersonalBest();
 }
 
 restartBtn.addEventListener("click", resetTest);
@@ -152,3 +157,4 @@ difficultySelect.addEventListener("change", resetTest);
 
 loadText();
 timeEl.innerText = timeLeft;
+loadPersonalBest();
