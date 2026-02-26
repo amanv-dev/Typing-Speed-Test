@@ -1,60 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Typing Speed Test</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TypeFlow</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
+<body>
 
-<body data-theme="dark">
+<header>
+  <div class="logo">TypeFlow</div>
 
-<div class="app">
-
-  <div class="top-bar">
-    <h1>Typing Speed Test</h1>
-
-    <div class="controls">
-      <select id="timeSelect">
-        <option value="60">1 Minute</option>
-        <option value="180">3 Minutes</option>
-        <option value="300">5 Minutes</option>
-      </select>
-
-      <select id="difficultySelect">
-        <option value="easy">Easy</option>
-        <option value="medium" selected>Medium</option>
-        <option value="hard">Hard</option>
-        <option value="code">Code Mode</option>
-      </select>
-
-      <select id="themeSelect">
-        <option value="dark">Dark</option>
-        <option value="light">Light</option>
-        <option value="amoled">AMOLED</option>
-        <option value="ocean">Ocean</option>
-        <option value="minimal">Minimal</option>
-      </select>
+  <div class="controls">
+    <div class="pill-group" id="timeControls">
+      <span data-time="60" class="active">1m</span>
+      <span data-time="180">3m</span>
+      <span data-time="300">5m</span>
     </div>
-  </div>
 
+    <button id="themeToggle">Light</button>
+  </div>
+</header>
+
+<main>
   <div class="stats">
-    <div><span>Time</span><h3 id="time">60</h3></div>
-    <div><span>Net WPM</span><h3 id="wpm">0</h3></div>
-    <div><span>Accuracy</span><h3 id="accuracy">100%</h3></div>
-  </div>
-
-  <!-- PERSONAL BEST -->
-  <div class="personal-best">
-    <h4>🏆 Personal Best</h4>
-    <p id="bestStats">No record yet</p>
+    <div><span>WPM</span><h2 id="wpm">0</h2></div>
+    <div><span>Accuracy</span><h2 id="accuracy">100%</h2></div>
+    <div><span>Time</span><h2 id="time">60</h2></div>
   </div>
 
   <div id="textDisplay" class="text-display"></div>
-  <textarea id="input" placeholder="Start typing here..."></textarea>
-  <button id="restartBtn" class="restart">Restart Test</button>
+  <input type="text" id="hiddenInput" autofocus />
+</main>
 
+<footer>
+  <p id="personalBest">Best: --</p>
+</footer>
+
+<!-- Result Modal -->
+<div id="resultModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>Test Complete</h2>
+    <p id="finalStats"></p>
+    <button id="restartBtn">Restart</button>
+  </div>
 </div>
 
 <script src="script.js"></script>

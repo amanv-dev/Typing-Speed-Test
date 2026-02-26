@@ -1,160 +1,133 @@
 const textDisplay = document.getElementById("textDisplay");
-const input = document.getElementById("input");
+const hiddenInput = document.getElementById("hiddenInput");
 const timeEl = document.getElementById("time");
 const wpmEl = document.getElementById("wpm");
 const accuracyEl = document.getElementById("accuracy");
+const timeControls = document.getElementById("timeControls");
+const themeToggle = document.getElementById("themeToggle");
+const resultModal = document.getElementById("resultModal");
+const finalStats = document.getElementById("finalStats");
 const restartBtn = document.getElementById("restartBtn");
-const timeSelect = document.getElementById("timeSelect");
-const themeSelect = document.getElementById("themeSelect");
-const difficultySelect = document.getElementById("difficultySelect");
-const bestStatsEl = document.getElementById("bestStats");
+const personalBest = document.getElementById("personalBest");
 
-let timeLeft = parseInt(timeSelect.value);
+let timeLeft = 60;
 let timer = null;
 let started = false;
+let currentText = "";
+let correct = 0;
 
-/* THEME */
-themeSelect.addEventListener("change", () => {
-  document.body.setAttribute("data-theme", themeSelect.value);
-});
-
-/* TEXT DATA */
-
-const textPool = [
+const sentences = [
   "Consistency builds excellence through repetition.",
   "Focus transforms effort into achievement.",
-  "Growth demands sacrifice and resilience.",
   "Discipline defines long term success.",
+  "Growth demands sacrifice and resilience.",
   "Preparation creates opportunity."
 ];
 
 function generateText() {
-  let count = parseInt(timeSelect.value) === 60 ? 3 :
-              parseInt(timeSelect.value) === 180 ? 8 : 15;
-
   let text = "";
-  for (let i = 0; i < count; i++) {
-    text += textPool[Math.floor(Math.random() * textPool.length)] + " ";
+  for (let i = 0; i < 8; i++) {
+    text += sentences[Math.floor(Math.random() * sentences.length)] + " ";
   }
   return text.trim();
 }
 
 function loadText() {
-  const paragraph = generateText();
+  currentText = generateText();
   textDisplay.innerHTML = "";
 
-  paragraph.split("").forEach(char => {
+  currentText.split("").forEach((char, index) => {
     const span = document.createElement("span");
     span.innerText = char;
+    if (index === 0) span.classList.add("current");
     textDisplay.appendChild(span);
   });
 }
 
-/* TIMER */
-
 function startTimer() {
   timer = setInterval(() => {
-    if (timeLeft > 0) {
-      timeLeft--;
-      timeEl.innerText = timeLeft;
-    } else {
-      clearInterval(timer);
-      input.disabled = true;
-      updatePersonalBest();
-    }
+    timeLeft--;
+    timeEl.innerText = timeLeft;
+    if (timeLeft <= 0) finishTest();
   }, 1000);
 }
 
-/* TYPING */
-
-input.addEventListener("input", () => {
+hiddenInput.addEventListener("input", () => {
   if (!started) {
     started = true;
     startTimer();
   }
 
-  const typed = input.value.split("");
+  const typed = hiddenInput.value.split("");
   const spans = textDisplay.querySelectorAll("span");
 
-  let correct = 0;
-  spans.forEach((span, index) => {
-    const char = typed[index];
+  correct = 0;
 
-    if (char == null) {
-      span.classList.remove("correct", "incorrect");
-    } else if (char === span.innerText) {
+  spans.forEach((span, index) => {
+    span.classList.remove("correct", "incorrect", "current");
+
+    if (typed[index] == null) {
+      if (index === typed.length) span.classList.add("current");
+      return;
+    }
+
+    if (typed[index] === span.innerText) {
       span.classList.add("correct");
-      span.classList.remove("incorrect");
       correct++;
     } else {
       span.classList.add("incorrect");
-      span.classList.remove("correct");
     }
+
+    if (index === typed.length) span.classList.add("current");
   });
 
-  const minutesElapsed = (parseInt(timeSelect.value) - timeLeft) / 60;
-  const netWPM = Math.round((correct / 5) / minutesElapsed);
+  const minutes = (60 - timeLeft) / 60;
+  const wpm = Math.round((correct / 5) / minutes);
   const accuracy = Math.round((correct / typed.length) * 100);
 
-  wpmEl.innerText = isFinite(netWPM) ? netWPM : 0;
+  wpmEl.innerText = isFinite(wpm) ? wpm : 0;
   accuracyEl.innerText = typed.length ? accuracy + "%" : "100%";
 });
 
-/* PERSONAL BEST SYSTEM */
-
-function getKey() {
-  return `best_${timeSelect.value}_${difficultySelect.value}`;
-}
-
-function updatePersonalBest() {
-  const currentWPM = parseInt(wpmEl.innerText);
-  const currentAccuracy = parseInt(accuracyEl.innerText);
-
-  const key = getKey();
-  const existing = JSON.parse(localStorage.getItem(key));
-
-  if (!existing || currentWPM > existing.wpm) {
-    const record = {
-      wpm: currentWPM,
-      accuracy: currentAccuracy
-    };
-    localStorage.setItem(key, JSON.stringify(record));
-  }
-
-  loadPersonalBest();
-}
-
-function loadPersonalBest() {
-  const key = getKey();
-  const record = JSON.parse(localStorage.getItem(key));
-
-  if (record) {
-    bestStatsEl.innerText =
-      `Best WPM: ${record.wpm} | Accuracy: ${record.accuracy}%`;
-  } else {
-    bestStatsEl.innerText = "No record yet";
-  }
-}
-
-/* RESET */
-
-function resetTest() {
+function finishTest() {
   clearInterval(timer);
-  timeLeft = parseInt(timeSelect.value);
-  timeEl.innerText = timeLeft;
-  started = false;
-  input.disabled = false;
-  input.value = "";
-  wpmEl.innerText = 0;
-  accuracyEl.innerText = "100%";
-  loadText();
-  loadPersonalBest();
+  resultModal.classList.remove("hidden");
+
+  const finalWPM = wpmEl.innerText;
+  finalStats.innerText = `WPM: ${finalWPM} | Accuracy: ${accuracyEl.innerText}`;
+
+  updateBest(finalWPM);
 }
 
-restartBtn.addEventListener("click", resetTest);
-timeSelect.addEventListener("change", resetTest);
-difficultySelect.addEventListener("change", resetTest);
+function updateBest(score) {
+  const best = localStorage.getItem("bestScore");
+  if (!best || score > best) {
+    localStorage.setItem("bestScore", score);
+  }
+  personalBest.innerText = "Best: " + localStorage.getItem("bestScore");
+}
+
+restartBtn.addEventListener("click", () => {
+  location.reload();
+});
+
+timeControls.addEventListener("click", e => {
+  if (e.target.dataset.time) {
+    document.querySelectorAll("#timeControls span")
+      .forEach(s => s.classList.remove("active"));
+    e.target.classList.add("active");
+
+    timeLeft = parseInt(e.target.dataset.time);
+    timeEl.innerText = timeLeft;
+  }
+});
+
+themeToggle.addEventListener("click", () => {
+  document.body.classList.toggle("light");
+});
+
+document.addEventListener("click", () => hiddenInput.focus());
 
 loadText();
 timeEl.innerText = timeLeft;
-loadPersonalBest();
+personalBest.innerText = "Best: " + (localStorage.getItem("bestScore") || "--");
