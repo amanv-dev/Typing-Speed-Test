@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TypeFlow</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<header>
+<header class="glass">
   <div class="logo">TypeFlow</div>
 
   <div class="controls">
@@ -19,15 +19,24 @@
       <span data-time="300">5m</span>
     </div>
 
-    <button id="themeToggle">Light</button>
+    <button id="themeToggle" class="theme-btn">Light</button>
   </div>
 </header>
 
 <main>
   <div class="stats">
-    <div><span>WPM</span><h2 id="wpm">0</h2></div>
-    <div><span>Accuracy</span><h2 id="accuracy">100%</h2></div>
-    <div><span>Time</span><h2 id="time">60</h2></div>
+    <div class="stat">
+      <span>WPM</span>
+      <h2 id="wpm">0</h2>
+    </div>
+    <div class="stat">
+      <span>Accuracy</span>
+      <h2 id="accuracy">100%</h2>
+    </div>
+    <div class="stat">
+      <span>Time</span>
+      <h2 id="time">60</h2>
+    </div>
   </div>
 
   <div id="textDisplay" class="text-display"></div>
@@ -38,12 +47,11 @@
   <p id="personalBest">Best: --</p>
 </footer>
 
-<!-- Result Modal -->
 <div id="resultModal" class="modal hidden">
   <div class="modal-content">
     <h2>Test Complete</h2>
     <p id="finalStats"></p>
-    <button id="restartBtn">Restart</button>
+    <button id="restartBtn" class="primary-btn">Restart</button>
   </div>
 </div>
 
