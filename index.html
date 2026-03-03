@@ -7,36 +7,28 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo-dot"></div>
-      <span>Typing Speed Test</span>
-    </div>
-
-    <div class="top-actions">
-      <div class="select-wrap">
-        <label for="textLength">Text</label>
-        <select id="textLength">
-          <option value="60">Normal</option>
-          <option value="90" selected>Fast</option>
-          <option value="120">Pro</option>
-        </select>
-      </div>
-
-      <button id="themeToggle" class="btn">Light</button>
-    </div>
-  </header>
-
   <main class="container">
     <section class="panel">
-      <div class="modes">
+      <div class="top-row">
         <div id="timeControls" class="pill-row">
           <button class="pill active" data-time="60">1m</button>
           <button class="pill" data-time="180">3m</button>
           <button class="pill" data-time="300">5m</button>
         </div>
 
-        <button id="restartTop" class="btn ghost" title="Restart (Esc)">Restart</button>
+        <div class="right-controls">
+          <div class="select-wrap">
+            <span class="select-label">Text</span>
+            <select id="textLength">
+              <option value="60">Normal</option>
+              <option value="90" selected>Fast</option>
+              <option value="120">Pro</option>
+            </select>
+          </div>
+
+          <button id="themeToggle" class="btn">Dark</button>
+          <button id="restartTop" class="btn ghost" title="Restart (Esc)">Restart</button>
+        </div>
       </div>
 
       <div class="stats">
@@ -58,20 +50,24 @@
         </div>
       </div>
 
-      <div class="typing-card">
+      <div class="typing-card" id="typingCard">
         <div id="textDisplay" class="text-display"></div>
-        <div class="hint">Click anywhere and start typing • Press <b>Esc</b> to restart</div>
+        <div class="hint">Click the typing area and start typing • Press <b>Esc</b> to restart</div>
       </div>
 
       <input type="text" id="hiddenInput" autocomplete="off" />
 
-      <section id="resultPanel" class="result hidden">
-        <div class="result-title">Results</div>
-        <div id="finalStats" class="result-stats"></div>
-        <div class="result-actions">
-          <button id="restartBtn" class="btn">Try again</button>
+      <!-- CENTER POPUP MODAL -->
+      <div id="resultModal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-card">
+          <div class="modal-title">Results</div>
+          <div id="finalStats" class="modal-stats"></div>
+          <div class="modal-actions">
+            <button id="restartBtn" class="btn">Try again</button>
+          </div>
         </div>
-      </section>
+      </div>
+
     </section>
   </main>
 

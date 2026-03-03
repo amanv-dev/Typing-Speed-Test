@@ -1,13 +1,17 @@
 const textDisplay = document.getElementById("textDisplay");
+const typingCard = document.getElementById("typingCard");
 const hiddenInput = document.getElementById("hiddenInput");
+
 const timeEl = document.getElementById("time");
 const wpmEl = document.getElementById("wpm");
 const accuracyEl = document.getElementById("accuracy");
+
 const timeControls = document.getElementById("timeControls");
 const themeToggle = document.getElementById("themeToggle");
-const restartBtn = document.getElementById("restartBtn");
 const restartTop = document.getElementById("restartTop");
-const resultPanel = document.getElementById("resultPanel");
+const restartBtn = document.getElementById("restartBtn");
+
+const resultModal = document.getElementById("resultModal");
 const finalStats = document.getElementById("finalStats");
 const personalBest = document.getElementById("personalBest");
 const textLengthSelect = document.getElementById("textLength");
@@ -31,9 +35,8 @@ const sentences = [
   "Typing fast comes from staying calm and steady."
 ];
 
-// ---------- TEXT GENERATION (length depends on time + typist speed) ----------
+// ---------- TEXT GENERATION ----------
 function generateTextForDuration(seconds, targetWpm, buffer = 1.8) {
-  // chars/min ~ WPM*5
   const minutes = seconds / 60;
   const targetChars = Math.ceil(targetWpm * 5 * minutes * buffer);
 
@@ -60,7 +63,7 @@ function loadText() {
 // ---------- THEME ----------
 function setTheme(isLight) {
   document.body.classList.toggle("light", isLight);
-  themeToggle.innerText = isLight ? "Dark" : "Light";
+  themeToggle.innerText = isLight ? "Light" : "Dark";
   localStorage.setItem("theme", isLight ? "light" : "dark");
 }
 
@@ -152,6 +155,10 @@ function updateBest(score) {
   personalBest.innerText = localStorage.getItem("bestScore") || "--";
 }
 
+function focusTyping() {
+  hiddenInput.focus({ preventScroll: true });
+}
+
 function applyDuration(seconds) {
   clearInterval(timer);
   timer = null;
@@ -165,9 +172,9 @@ function applyDuration(seconds) {
   wpmEl.innerText = "0";
   accuracyEl.innerText = "100%";
 
-  resultPanel.classList.add("hidden");
+  resultModal.classList.add("hidden");
   loadText();
-  hiddenInput.focus();
+  focusTyping();
 }
 
 function finishTest() {
@@ -177,12 +184,13 @@ function finishTest() {
   const typedChars = hiddenInput.value.split("");
   const m = computeMetrics(typedChars);
 
-  resultPanel.classList.remove("hidden");
   finalStats.innerText =
     `WPM: ${m.netWpm} (Raw: ${m.rawWpm}) • Accuracy: ${m.accuracy}% • ` +
     `Errors: ${m.errors} (Incorrect: ${m.incorrect}, Extra: ${m.extra}, Missed: ${m.missed})`;
 
   updateBest(m.netWpm);
+
+  resultModal.classList.remove("hidden");
 }
 
 // ---------- EVENTS ----------
@@ -211,7 +219,6 @@ timeControls.addEventListener("click", (e) => {
 });
 
 textLengthSelect.addEventListener("change", () => {
-  // regenerate text only when not actively typing, or just reset (simple + stable)
   applyDuration(totalTime);
 });
 
@@ -220,9 +227,14 @@ themeToggle.addEventListener("click", () => {
   setTheme(!isLight);
 });
 
-document.addEventListener("click", () => hiddenInput.focus());
+typingCard.addEventListener("click", () => focusTyping());
+textDisplay.addEventListener("click", () => focusTyping());
 
-// Safe restart key: ESC (won't interfere with typing)
+// Click outside modal closes it
+resultModal.addEventListener("click", (e) => {
+  if (e.target === resultModal) resultModal.classList.add("hidden");
+});
+
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") applyDuration(totalTime);
 });
@@ -235,4 +247,4 @@ personalBest.innerText = localStorage.getItem("bestScore") || "--";
 timeEl.innerText = timeLeft;
 
 loadText();
-hiddenInput.focus();
+focusTyping();
