@@ -5,37 +5,50 @@ const wpmEl = document.getElementById("wpm");
 const accuracyEl = document.getElementById("accuracy");
 const timeControls = document.getElementById("timeControls");
 const themeToggle = document.getElementById("themeToggle");
-const resultModal = document.getElementById("resultModal");
-const finalStats = document.getElementById("finalStats");
 const restartBtn = document.getElementById("restartBtn");
+const restartTop = document.getElementById("restartTop");
+const resultPanel = document.getElementById("resultPanel");
+const finalStats = document.getElementById("finalStats");
 const personalBest = document.getElementById("personalBest");
+const textLengthSelect = document.getElementById("textLength");
 
-let timeLeft = 60;
+let totalTime = 60;
+let timeLeft = totalTime;
 let timer = null;
 let started = false;
 let currentText = "";
-let correct = 0;
 
 const sentences = [
   "Consistency builds excellence through repetition.",
   "Focus transforms effort into achievement.",
   "Discipline defines long term success.",
   "Growth demands sacrifice and resilience.",
-  "Preparation creates opportunity."
+  "Preparation creates opportunity.",
+  "Small steps repeated daily create massive results.",
+  "Clarity beats motivation when the work gets hard.",
+  "Speed comes from smoothness not rushing.",
+  "Practice makes your fingers accurate and relaxed.",
+  "Typing fast comes from staying calm and steady."
 ];
 
-function generateText() {
+// ---------- TEXT GENERATION (length depends on time + typist speed) ----------
+function generateTextForDuration(seconds, targetWpm, buffer = 1.8) {
+  // chars/min ~ WPM*5
+  const minutes = seconds / 60;
+  const targetChars = Math.ceil(targetWpm * 5 * minutes * buffer);
+
   let text = "";
-  for (let i = 0; i < 8; i++) {
+  while (text.length < targetChars) {
     text += sentences[Math.floor(Math.random() * sentences.length)] + " ";
   }
   return text.trim();
 }
 
 function loadText() {
-  currentText = generateText();
-  textDisplay.innerHTML = "";
+  const targetWpm = parseInt(textLengthSelect.value, 10); // 60/90/120
+  currentText = generateTextForDuration(totalTime, targetWpm);
 
+  textDisplay.innerHTML = "";
   currentText.split("").forEach((char, index) => {
     const span = document.createElement("span");
     span.innerText = char;
@@ -44,6 +57,87 @@ function loadText() {
   });
 }
 
+// ---------- THEME ----------
+function setTheme(isLight) {
+  document.body.classList.toggle("light", isLight);
+  themeToggle.innerText = isLight ? "Dark" : "Light";
+  localStorage.setItem("theme", isLight ? "light" : "dark");
+}
+
+// ---------- METRICS ----------
+function getElapsedMinutes() {
+  return (totalTime - timeLeft) / 60;
+}
+
+function computeMetrics(typedChars) {
+  const spans = textDisplay.querySelectorAll("span");
+  const targetLen = spans.length;
+  const typedLen = typedChars.length;
+
+  let correct = 0;
+  let incorrect = 0;
+
+  for (let i = 0; i < Math.min(targetLen, typedLen); i++) {
+    if (typedChars[i] === spans[i].innerText) correct++;
+    else incorrect++;
+  }
+
+  const missed = Math.max(0, targetLen - typedLen);
+  const extra = Math.max(0, typedLen - targetLen);
+  const errors = incorrect + extra;
+
+  const elapsedMinutes = getElapsedMinutes();
+  const safeMinutes = elapsedMinutes > 0 ? elapsedMinutes : 0;
+
+  const rawWpm = safeMinutes ? (typedLen / 5) / safeMinutes : 0;
+  const netWpm = safeMinutes ? (correct / 5) / safeMinutes : 0;
+
+  const denom = correct + errors;
+  const accuracy = denom > 0 ? (correct / denom) * 100 : 100;
+
+  return {
+    correct,
+    incorrect,
+    missed,
+    extra,
+    errors,
+    netWpm: Math.round(netWpm),
+    rawWpm: Math.round(rawWpm),
+    accuracy: Math.round(Math.max(0, Math.min(accuracy, 100)))
+  };
+}
+
+function renderTypingState(typedChars) {
+  const spans = textDisplay.querySelectorAll("span");
+  const targetLen = spans.length;
+
+  spans.forEach((span, index) => {
+    span.classList.remove("correct", "incorrect", "current");
+
+    const typed = typedChars[index];
+    if (typed == null) {
+      if (index === typedChars.length) span.classList.add("current");
+      return;
+    }
+
+    if (typed === span.innerText) span.classList.add("correct");
+    else span.classList.add("incorrect");
+
+    if (index === typedChars.length) span.classList.add("current");
+  });
+
+  if (typedChars.length >= targetLen && targetLen > 0) {
+    spans[targetLen - 1].classList.add("current");
+  }
+}
+
+function updateStats(typedChars) {
+  const m = computeMetrics(typedChars);
+  wpmEl.innerText = isFinite(m.netWpm) ? m.netWpm : 0;
+  accuracyEl.innerText = `${m.accuracy}%`;
+}
+
+// ---------- TIMER / FLOW ----------
 function startTimer() {
   timer = setInterval(() => {
     timeLeft--;
@@ -52,82 +146,93 @@ function startTimer() {
   }, 1000);
 }
 
+function updateBest(score) {
+  const best = Number(localStorage.getItem("bestScore") || 0);
+  if (!best || score > best) localStorage.setItem("bestScore", String(score));
+  personalBest.innerText = localStorage.getItem("bestScore") || "--";
+}
+
+function applyDuration(seconds) {
+  clearInterval(timer);
+  timer = null;
+  started = false;
+
+  totalTime = seconds;
+  timeLeft = seconds;
+
+  hiddenInput.value = "";
+  timeEl.innerText = timeLeft;
+  wpmEl.innerText = "0";
+  accuracyEl.innerText = "100%";
+
+  resultPanel.classList.add("hidden");
+  loadText();
+  hiddenInput.focus();
+}
+
+function finishTest() {
+  clearInterval(timer);
+  timer = null;
+
+  const typedChars = hiddenInput.value.split("");
+  const m = computeMetrics(typedChars);
+
+  resultPanel.classList.remove("hidden");
+  finalStats.innerText =
+    `WPM: ${m.netWpm} (Raw: ${m.rawWpm}) • Accuracy: ${m.accuracy}% • ` +
+    `Errors: ${m.errors} (Incorrect: ${m.incorrect}, Extra: ${m.extra}, Missed: ${m.missed})`;
+
+  updateBest(m.netWpm);
+}
+
+// ---------- EVENTS ----------
 hiddenInput.addEventListener("input", () => {
   if (!started) {
     started = true;
     startTimer();
   }
-
-  const typed = hiddenInput.value.split("");
-  const spans = textDisplay.querySelectorAll("span");
-
-  correct = 0;
-
-  spans.forEach((span, index) => {
-    span.classList.remove("correct", "incorrect", "current");
-
-    if (typed[index] == null) {
-      if (index === typed.length) span.classList.add("current");
-      return;
-    }
-
-    if (typed[index] === span.innerText) {
-      span.classList.add("correct");
-      correct++;
-    } else {
-      span.classList.add("incorrect");
-    }
-
-    if (index === typed.length) span.classList.add("current");
-  });
-
-  const minutes = (60 - timeLeft) / 60;
-  const wpm = Math.round((correct / 5) / minutes);
-  const accuracy = Math.round((correct / typed.length) * 100);
-
-  wpmEl.innerText = isFinite(wpm) ? wpm : 0;
-  accuracyEl.innerText = typed.length ? accuracy + "%" : "100%";
+  const typedChars = hiddenInput.value.split("");
+  renderTypingState(typedChars);
+  updateStats(typedChars);
 });
 
-function finishTest() {
-  clearInterval(timer);
-  resultModal.classList.remove("hidden");
+restartBtn.addEventListener("click", () => applyDuration(totalTime));
+restartTop.addEventListener("click", () => applyDuration(totalTime));
 
-  const finalWPM = wpmEl.innerText;
-  finalStats.innerText = `WPM: ${finalWPM} | Accuracy: ${accuracyEl.innerText}`;
+timeControls.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-time]");
+  if (!btn) return;
 
-  updateBest(finalWPM);
-}
+  document.querySelectorAll("#timeControls .pill")
+    .forEach((b) => b.classList.remove("active"));
 
-function updateBest(score) {
-  const best = localStorage.getItem("bestScore");
-  if (!best || score > best) {
-    localStorage.setItem("bestScore", score);
-  }
-  personalBest.innerText = "Best: " + localStorage.getItem("bestScore");
-}
-
-restartBtn.addEventListener("click", () => {
-  location.reload();
+  btn.classList.add("active");
+  applyDuration(parseInt(btn.dataset.time, 10));
 });
 
-timeControls.addEventListener("click", e => {
-  if (e.target.dataset.time) {
-    document.querySelectorAll("#timeControls span")
-      .forEach(s => s.classList.remove("active"));
-    e.target.classList.add("active");
-
-    timeLeft = parseInt(e.target.dataset.time);
-    timeEl.innerText = timeLeft;
-  }
+textLengthSelect.addEventListener("change", () => {
+  // regenerate text only when not actively typing, or just reset (simple + stable)
+  applyDuration(totalTime);
 });
 
 themeToggle.addEventListener("click", () => {
-  document.body.classList.toggle("light");
+  const isLight = document.body.classList.contains("light");
+  setTheme(!isLight);
 });
 
 document.addEventListener("click", () => hiddenInput.focus());
 
-loadText();
+// Safe restart key: ESC (won't interfere with typing)
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") applyDuration(totalTime);
+});
+
+// ---------- INIT ----------
+const savedTheme = localStorage.getItem("theme");
+setTheme(savedTheme === "light");
+
+personalBest.innerText = localStorage.getItem("bestScore") || "--";
 timeEl.innerText = timeLeft;
-personalBest.innerText = "Best: " + (localStorage.getItem("bestScore") || "--");
+
+loadText();
+hiddenInput.focus();

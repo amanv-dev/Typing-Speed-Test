@@ -2,59 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TypeFlow</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Typing Speed Test</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-<header class="glass">
-  <div class="logo">TypeFlow</div>
-
-  <div class="controls">
-    <div class="pill-group" id="timeControls">
-      <span data-time="60" class="active">1m</span>
-      <span data-time="180">3m</span>
-      <span data-time="300">5m</span>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-dot"></div>
+      <span>Typing Speed Test</span>
     </div>
 
-    <button id="themeToggle" class="theme-btn">Light</button>
-  </div>
-</header>
+    <div class="top-actions">
+      <div class="select-wrap">
+        <label for="textLength">Text</label>
+        <select id="textLength">
+          <option value="60">Normal</option>
+          <option value="90" selected>Fast</option>
+          <option value="120">Pro</option>
+        </select>
+      </div>
 
-<main>
-  <div class="stats">
-    <div class="stat">
-      <span>WPM</span>
-      <h2 id="wpm">0</h2>
+      <button id="themeToggle" class="btn">Light</button>
     </div>
-    <div class="stat">
-      <span>Accuracy</span>
-      <h2 id="accuracy">100%</h2>
-    </div>
-    <div class="stat">
-      <span>Time</span>
-      <h2 id="time">60</h2>
-    </div>
-  </div>
+  </header>
 
-  <div id="textDisplay" class="text-display"></div>
-  <input type="text" id="hiddenInput" autofocus />
-</main>
+  <main class="container">
+    <section class="panel">
+      <div class="modes">
+        <div id="timeControls" class="pill-row">
+          <button class="pill active" data-time="60">1m</button>
+          <button class="pill" data-time="180">3m</button>
+          <button class="pill" data-time="300">5m</button>
+        </div>
 
-<footer>
-  <p id="personalBest">Best: --</p>
-</footer>
+        <button id="restartTop" class="btn ghost" title="Restart (Esc)">Restart</button>
+      </div>
 
-<div id="resultModal" class="modal hidden">
-  <div class="modal-content">
-    <h2>Test Complete</h2>
-    <p id="finalStats"></p>
-    <button id="restartBtn" class="primary-btn">Restart</button>
-  </div>
-</div>
+      <div class="stats">
+        <div class="stat">
+          <div class="label">Time</div>
+          <div class="value"><span id="time">60</span>s</div>
+        </div>
+        <div class="stat">
+          <div class="label">WPM</div>
+          <div class="value"><span id="wpm">0</span></div>
+        </div>
+        <div class="stat">
+          <div class="label">Accuracy</div>
+          <div class="value"><span id="accuracy">100%</span></div>
+        </div>
+        <div class="stat">
+          <div class="label">Best</div>
+          <div class="value" id="personalBest">--</div>
+        </div>
+      </div>
 
-<script src="script.js"></script>
+      <div class="typing-card">
+        <div id="textDisplay" class="text-display"></div>
+        <div class="hint">Click anywhere and start typing • Press <b>Esc</b> to restart</div>
+      </div>
+
+      <input type="text" id="hiddenInput" autocomplete="off" />
+
+      <section id="resultPanel" class="result hidden">
+        <div class="result-title">Results</div>
+        <div id="finalStats" class="result-stats"></div>
+        <div class="result-actions">
+          <button id="restartBtn" class="btn">Try again</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>
